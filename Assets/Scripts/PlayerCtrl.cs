@@ -36,7 +36,8 @@ public class PlayerCtrl : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //Debug.Log(moveValue.x + " " + moveValue.y);
+        Debug.Log("h : " + moveValue.x + " v : " + moveValue.y);
+        Debug.Log("pDir : " + pDir.normalized);
         //cameraZ.Set(transform.position.x - cameraTr.position.x, 0.0f, transform.position.z - cameraTr.position.z);
         cameraZ = cameraTr.forward;
         cameraZ.Set(cameraZ.x, 0.0f, cameraZ.z);
@@ -47,6 +48,7 @@ public class PlayerCtrl : MonoBehaviour
     {
         Turn();
         Move();
+        
     }
     private void OnEnable()
     {
@@ -62,24 +64,23 @@ public class PlayerCtrl : MonoBehaviour
     }
     void Move()
     {
-        if (moveValue.magnitude > 0.01f)
+        if (moveValue.sqrMagnitude > 0.01f)
         {
-            if (moveValue.y > 0.1f)
+            if (moveValue.y > 0.1f) // 상
             {
-                transform.forward = cameraZ;
+                //transform.forward = cameraZ;
                 //angle += moveValue.x * 0.05f;
                 //angle = angle % (Mathf.PI * 2.0f); // 회전용
                 //moveDir.Set(0.0f, 0.0f, moveValue.y);  // 임시 이동 방식
                 moveDir = cameraZ;
-                moveDir = moveDir.normalized * moveSpeed * Time.deltaTime;
-                rb.MovePosition(transform.position + moveDir);
+               
             }
-            if(moveValue.y < -0.1f)
+            if(moveValue.y < -0.1f) // 하
             {
-                transform.forward = -cameraZ;
+               // transform.forward = -cameraZ;
                 moveDir = -cameraZ;
-                moveDir = moveDir.normalized * moveSpeed * Time.deltaTime;
-                rb.MovePosition(transform.position + moveDir);
+                //moveDir = moveDir.normalized * moveSpeed * Time.deltaTime;
+                //rb.MovePosition(transform.position + moveDir);
             }
 
             if (moveValue.x > 0.01f || moveValue.x < -0.01f)
@@ -87,9 +88,12 @@ public class PlayerCtrl : MonoBehaviour
                 //moveDir.Set(Mathf.Sin(angle), 0.0f, Mathf.Cos(angle));
                 //moveDir = moveDir.normalized * moveSpeed * Time.deltaTime;
                 // 임시로 좌우로 움직이게 설정, 원운동으로 수정 필요
-                moveDir = pDir * moveSpeed * Time.deltaTime;
-                rb.MovePosition(transform.position + moveDir);
+                moveDir += pDir;
+                //moveDir = pDir * moveSpeed * Time.deltaTime;
+                //rb.MovePosition(transform.position + moveDir);
             }
+            moveDir = moveDir.normalized * moveSpeed * Time.deltaTime;
+            rb.MovePosition(transform.position + moveDir);
         }
         else
         {
@@ -99,19 +103,28 @@ public class PlayerCtrl : MonoBehaviour
     }
     void Turn()
     {
-        if (moveValue.magnitude < 0.1f)
+        if (moveValue.sqrMagnitude < 0.1f)
+        {
             return;
-        // 대각선 미대응, 수정 필요
-        if(moveValue.x > 0.1f)
+        }
+        pDir = Vector3.zero;
+        if (moveValue.x > 0.1f)
             pDir = cameraTr.right.normalized;
         if(moveValue.x < -0.1f)
             pDir = -cameraTr.right.normalized;
-        Debug.Log("pDir : " + pDir);
-        Quaternion rot = Quaternion.LookRotation(pDir);
-        rb.rotation = Quaternion.Slerp(rb.rotation, rot, rotSpeed * Time.deltaTime);
-        //transform.rotation = rot;
+        if (moveValue.y > 0.1f)
+            pDir += cameraZ;
+        if (moveValue.y < -0.1f)
+            pDir -= cameraZ;
+        //Debug.Log("pDir : " + pDir.normalized);
+        Quaternion rot = Quaternion.LookRotation(pDir.normalized);
 
-        //transform.Rotate(Vector3.up * rotSpeed * Time.deltaTime * moveDir.y);
+        //rb.rotation = rot;
+        rb.rotation = Quaternion.Slerp(rb.rotation, rot, rotSpeed * Time.deltaTime);
+        
+        
+        //transform.rotation = rot;
+        
     }
     //void SetMouseMove(InputAction.CallbackContext ctx)
     //{
