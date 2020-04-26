@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.OnScreen;
 
 public class PlayerCtrl : MonoBehaviour
 {
@@ -16,8 +17,11 @@ public class PlayerCtrl : MonoBehaviour
     public float angle = 0.0f;
     public Transform cameraTr;
     private Vector3 cameraZ;
+
+    public OnScreenStick leftStick;
     
-    
+
+
     // Start is called before the first frame update
     private void Awake()
     {
@@ -38,6 +42,9 @@ public class PlayerCtrl : MonoBehaviour
     {
         Debug.Log("h : " + moveValue.x + " v : " + moveValue.y);
         Debug.Log("pDir : " + pDir.normalized);
+
+        Vector2 data = (Vector2)leftStick.control.ReadValueAsObject();
+        moveValue = data;
         //cameraZ.Set(transform.position.x - cameraTr.position.x, 0.0f, transform.position.z - cameraTr.position.z);
         cameraZ = cameraTr.forward;
         cameraZ.Set(cameraZ.x, 0.0f, cameraZ.z);

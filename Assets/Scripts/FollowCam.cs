@@ -1,6 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.OnScreen;
+
 
 public class FollowCam : MonoBehaviour
 {
@@ -18,7 +21,8 @@ public class FollowCam : MonoBehaviour
     public float maxXAngle = 25.0f ;
     public float minXAngle = -5.0f;
     Vector3 xRotAxis;
-   
+    public OnScreenStick rightStick;
+
     void Start()
     {
         //tr = GetComponent<Transform>(); // CameraRig의 Transform 컴포넌트를 추출
@@ -26,8 +30,13 @@ public class FollowCam : MonoBehaviour
     }
     void Update()
     {
-        r = Input.GetAxisRaw("Mouse X");
-        q = Input.GetAxisRaw("Mouse Y");
+        //r = Input.GetAxisRaw("Mouse X");
+        //q = Input.GetAxisRaw("Mouse Y");
+        Vector2 data = (Vector2)rightStick.control.ReadValueAsObject();
+        r = data.x;
+        q = data.y;
+        print(data);
+        //Debug.Log("r = " + r + " q = " + q);
         yAngle += r * 0.1f;
         yAngle = yAngle % (2 * Mathf.PI);
         xAngle += q * 1.2f;
