@@ -18,7 +18,7 @@ public class FollowCam : MonoBehaviour
     private float q = 0.0f;
     private float yAngle = 0.0f;
     private float xAngle = 0.0f;
-    public float maxXAngle = 25.0f ;
+    public float maxXAngle = 25.0f;
     public float minXAngle = -5.0f;
     Vector3 xRotAxis;
     public OnScreenStick rightStick;
@@ -30,12 +30,15 @@ public class FollowCam : MonoBehaviour
     }
     void Update()
     {
-        //r = Input.GetAxisRaw("Mouse X");
-        //q = Input.GetAxisRaw("Mouse Y");
+#if UNITY_EDITOR
+        r = Input.GetAxisRaw("Mouse X");
+        q = Input.GetAxisRaw("Mouse Y");
+#elif UNITY_ANDROID
         Vector2 data = (Vector2)rightStick.control.ReadValueAsObject();
         r = data.x;
         q = data.y;
-        print(data);
+#endif
+
         //Debug.Log("r = " + r + " q = " + q);
         yAngle += r * 0.1f;
         yAngle = yAngle % (2 * Mathf.PI);
@@ -51,7 +54,7 @@ public class FollowCam : MonoBehaviour
     {
         //var camPos = target.position - (target.forward * distance) + (target.up * height); // 카메라의 높이와 거리를 계산
         var camPos = target.position - (initForward * distance) + (target.up * height); // 카메라의 높이와 거리를 계산
-        
+
         //transform.position = Vector3.Slerp(transform.position, camPos, Time.deltaTime * moveDamping); // 이동할 때의 속도 계수를 적용
         transform.position = camPos;
         transform.RotateAround(target.position, target.up, yAngle); // 플레이어의 y축을 기준으로 카메라를 공전
@@ -62,8 +65,8 @@ public class FollowCam : MonoBehaviour
         transform.LookAt(target.position + (target.up * targetOffset)); // 카메라의 Z축을 타겟의 위치로 설정
         xRotAxis.Set(transform.right.x, 0.0f, transform.right.z);
         transform.RotateAround(target.position + (target.up * targetOffset), xRotAxis, -xAngle); // 타켓 위치를 기준점으로 카메라의 x축 공전
-        //Debug.Log("xRotAxis : " + xRotAxis);
-        
+                                                                                                 //Debug.Log("xRotAxis : " + xRotAxis);
+
     }
 
     void OnDrawGizmos() // 추적할 좌표를 시각적으로 표현
