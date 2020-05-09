@@ -8,6 +8,7 @@ using UnityEngine.InputSystem.OnScreen;
 public class FollowCam : MonoBehaviour
 {
     public Transform target; // 추적할 대상
+    public PlayerCtrl playerCtrl;
     public float moveDamping = 20.0f; // 이동 속도 계수
     public float rotateDamping = 10.0f; // 회전 속도 계수
     public float distance = 5.0f; // 추적 대상과의 거리
@@ -18,15 +19,19 @@ public class FollowCam : MonoBehaviour
     private float q = 0.0f;
     private float yAngle = 0.0f;
     private float xAngle = 0.0f;
+    float beforeXAngle = 0.0f;
     public float maxXAngle = 25.0f;
     public float minXAngle = -5.0f;
     Vector3 xRotAxis;
     public OnScreenStick rightStick;
+    public GameObject firePosObj;
+    bool firebuttonClicked;
 
     void Start()
     {
         //tr = GetComponent<Transform>(); // CameraRig의 Transform 컴포넌트를 추출
         initForward = target.forward;
+        firebuttonClicked = false;
     }
     void Update()
     {
@@ -40,6 +45,7 @@ public class FollowCam : MonoBehaviour
 #endif
 
         //Debug.Log("r = " + r + " q = " + q);
+        beforeXAngle = xAngle;
         yAngle += r * 0.1f;
         yAngle = yAngle % (2 * Mathf.PI);
         xAngle += q * 1.2f;
@@ -65,8 +71,19 @@ public class FollowCam : MonoBehaviour
         transform.LookAt(target.position + (target.up * targetOffset)); // 카메라의 Z축을 타겟의 위치로 설정
         xRotAxis.Set(transform.right.x, 0.0f, transform.right.z);
         transform.RotateAround(target.position + (target.up * targetOffset), xRotAxis, -xAngle); // 타켓 위치를 기준점으로 카메라의 x축 공전
-                                                                                                 //Debug.Log("xRotAxis : " + xRotAxis);
 
+        if (firePosObj != null)
+        {
+
+            //firePosObj.transform.RotateAround(firePosObj.transform.position, firePosObj.transform.right, -q);
+            firePosObj.transform.Rotate(beforeXAngle- xAngle, 0.0f, 0.0f);
+        }
+        //Debug.Log("xRotAxis : " + xRotAxis);
+        if(firebuttonClicked)
+        {
+            playerCtrl.SetPlayerRotationCam(transform.forward);
+            firebuttonClicked = false;
+        }
     }
 
     void OnDrawGizmos() // 추적할 좌표를 시각적으로 표현
@@ -74,5 +91,9 @@ public class FollowCam : MonoBehaviour
         Gizmos.color = Color.green;
         Gizmos.DrawWireSphere(target.position + (target.up * targetOffset), 0.1f); // 추적 및 시야를 맞출 위치를 표시
         Gizmos.DrawLine(target.position + (target.up * targetOffset), transform.position); // 메인 카메라와 추적 지점 간의 선을 표시
+    }
+    public void SetFirebuttonClicked()
+    {
+        firebuttonClicked = true;
     }
 }

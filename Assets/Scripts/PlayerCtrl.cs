@@ -7,7 +7,9 @@ using UnityEngine.InputSystem.OnScreen;
 public class PlayerCtrl : MonoBehaviour
 {
     private Rigidbody rb;
+    private FireCtrl fireCtrl;
     public PlayerInput pis;
+    public FollowCam cam;
     public float moveSpeed = 10.0f; // 이동속도
     public float rotSpeed = 80.0f; // 회전속도
     Vector2 moveValue; // InputSystem에서 받아오는 값
@@ -16,6 +18,8 @@ public class PlayerCtrl : MonoBehaviour
     public Transform cameraTr;
     private Vector3 cameraZ;
     float minInputValue;
+    bool fireAvailable;
+    bool rotateFinish;
 
     public OnScreenStick leftStick;
 
@@ -29,8 +33,12 @@ public class PlayerCtrl : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+        fireCtrl = GetComponent<FireCtrl>();
+
         pDir = transform.forward;
         minInputValue = 0.2f;
+        fireAvailable = false;
+        rotateFinish = false;
     }
 
     // Update is called once per frame
@@ -38,15 +46,18 @@ public class PlayerCtrl : MonoBehaviour
     {
         //Debug.Log("h : " + moveValue.x + " v : " + moveValue.y);
         //Debug.Log("pDir : " + pDir.normalized);
-        Vector2 data = (Vector2)leftStick.control.ReadValueAsObject();
-#if UNITY_EDITOR
-        data = Vector2.zero;
-#elif UNITY_ANDROID
-        moveValue = data;
-#endif
+        Vector2 data;
         cameraZ = cameraTr.forward;
         cameraZ.Set(cameraZ.x, 0.0f, cameraZ.z);
         cameraZ = cameraZ.normalized;
+
+#if UNITY_EDITOR
+        data = Vector2.zero;
+#elif UNITY_ANDROID
+        data = (Vector2)leftStick.control.ReadValueAsObject();
+        moveValue = data;
+#endif
+
     }
     private void FixedUpdate()
     {
@@ -71,7 +82,6 @@ public class PlayerCtrl : MonoBehaviour
         {
             if (moveValue.y > minInputValue) // 상
             {
-                //moveDir.Set(0.0f, 0.0f, moveValue.y);  // 임시 이동 방식
                 moveDir = cameraZ;
             }
             if (moveValue.y < -minInputValue) // 하
@@ -79,9 +89,8 @@ public class PlayerCtrl : MonoBehaviour
                 moveDir = -cameraZ;
             }
 
-            if (moveValue.x > minInputValue || moveValue.x < -minInputValue)
+            if (moveValue.x > minInputValue || moveValue.x < -minInputValue) // 좌우 이동
             {
-                //moveDir = moveDir.normalized * moveSpeed * Time.deltaTime;
                 // 임시로 좌우로 움직이게 설정, 원운동으로 수정 필요
                 moveDir += pDir;
             }
@@ -115,5 +124,15 @@ public class PlayerCtrl : MonoBehaviour
     void SetMoveValueZero(InputAction.CallbackContext ctx)
     {
         moveValue = Vector3.zero;
+    }
+    public void SetPlayerRotationCam(Vector3 newPos)
+    {
+        newPos.Set(newPos.x, 0.0f, newPos.z);
+        transform.forward = newPos;
+        fireCtrl.SetRotateComplete();
+    }
+    public void SetReadyToFire()
+    {
+        cam.SetFirebuttonClicked();
     }
 }

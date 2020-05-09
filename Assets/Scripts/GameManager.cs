@@ -6,11 +6,17 @@ public class GameManager : MonoBehaviour
 {
     static GameManager s_instance = null;
     public static GameManager Instance { get { Init(); return s_instance; } }
+    public GameObject mobileJoystick;
     // Start is called before the first frame update
     void Start()
     {
         Init();
         Application.targetFrameRate = 60;
+#if UNITY_EDITOR
+        mobileJoystick.SetActive(false);
+#elif UNITY_ANDROID || UNITY_IOS
+        mobileJoystick.SetActive(true);
+#endif
     }
     static void Init()
     {
