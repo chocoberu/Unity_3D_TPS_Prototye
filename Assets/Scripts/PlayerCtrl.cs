@@ -13,13 +13,12 @@ public class PlayerCtrl : MonoBehaviour
     public float moveSpeed = 10.0f; // 이동속도
     public float rotSpeed = 80.0f; // 회전속도
     Vector2 moveValue; // InputSystem에서 받아오는 값
-    Vector3 moveDir;
-    Vector3 pDir;
+    Vector3 moveDir; // 움직이는 방향
+    Vector3 pDir; // 플레이어가 바라보는 방향
     public Transform cameraTr;
     private Vector3 cameraZ;
     float minInputValue;
-    bool fireAvailable;
-    bool rotateFinish;
+    bool isFire;
 
     public OnScreenStick leftStick;
 
@@ -37,8 +36,7 @@ public class PlayerCtrl : MonoBehaviour
 
         pDir = transform.forward;
         minInputValue = 0.2f;
-        fireAvailable = false;
-        rotateFinish = false;
+        isFire = false;
     }
 
     // Update is called once per frame
@@ -92,7 +90,15 @@ public class PlayerCtrl : MonoBehaviour
             if (moveValue.x > minInputValue || moveValue.x < -minInputValue) // 좌우 이동
             {
                 // 임시로 좌우로 움직이게 설정, 원운동으로 수정 필요
-                moveDir += pDir;
+                if (!isFire)
+                    moveDir += pDir;
+                else
+                {
+                    if(moveValue.x > minInputValue)
+                        moveDir += cameraTr.right.normalized;
+                    else if(moveValue.x < -minInputValue)
+                        moveDir -= cameraTr.right.normalized;
+                }
             }
             moveDir = moveDir.normalized * moveSpeed * Time.deltaTime;
             rb.MovePosition(transform.position + moveDir);
@@ -109,15 +115,22 @@ public class PlayerCtrl : MonoBehaviour
             return;
         }
         pDir = Vector3.zero;
-        if (moveValue.x > minInputValue)
-            pDir = cameraTr.right.normalized;
-        if (moveValue.x < -minInputValue)
-            pDir = -cameraTr.right.normalized;
+        // 좌우 회전
+        if (!isFire)
+        {
+            if (moveValue.x > minInputValue) // 오른쪽
+                pDir = cameraTr.right.normalized;
+            if (moveValue.x < -minInputValue) // 왼쪽
+                pDir = -cameraTr.right.normalized;
+        }
+        else
+            pDir = transform.forward;
+        // 상하 회전
         if (moveValue.y > minInputValue)
             pDir += cameraZ;
         if (moveValue.y < -minInputValue)
             pDir -= cameraZ;
-        //Debug.Log("pDir : " + pDir.normalized);
+        Debug.Log("pDir : " + pDir.normalized);
         Quaternion rot = Quaternion.LookRotation(pDir.normalized);
         rb.rotation = Quaternion.Slerp(rb.rotation, rot, rotSpeed * Time.deltaTime);
     }
@@ -134,5 +147,10 @@ public class PlayerCtrl : MonoBehaviour
     public void SetReadyToFire()
     {
         cam.SetFirebuttonClicked();
+        isFire = true;
+    }
+    public void SetFinishedFire()
+    {
+        isFire = false;
     }
 }

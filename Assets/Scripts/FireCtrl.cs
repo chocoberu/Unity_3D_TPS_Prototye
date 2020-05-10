@@ -32,9 +32,12 @@ public class FireCtrl : MonoBehaviour
         if (!isReloading && Input.GetMouseButtonDown(0))
         {
             isFire = true;
-            playerCtrl.SetReadyToFire();
+            playerCtrl.SetReadyToFire(); // 이동 중에 쏠때는 어떻게 할지 수정 필요
         }
-
+        if(Input.GetMouseButtonUp(0)) // 버튼 땠을 때
+        {
+            playerCtrl.SetFinishedFire();
+        }
 
 #elif UNITY_ANDROID
         // 현재 연사 기능 X

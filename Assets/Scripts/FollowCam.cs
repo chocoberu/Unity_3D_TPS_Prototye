@@ -74,12 +74,10 @@ public class FollowCam : MonoBehaviour
 
         if (firePosObj != null)
         {
-
-            //firePosObj.transform.RotateAround(firePosObj.transform.position, firePosObj.transform.right, -q);
-            firePosObj.transform.Rotate(beforeXAngle- xAngle, 0.0f, 0.0f);
+            firePosObj.transform.Rotate(beforeXAngle- xAngle, 0.0f, 0.0f); // 총구 부분 회전
         }
-        //Debug.Log("xRotAxis : " + xRotAxis);
-        if(firebuttonClicked)
+        
+        if(firebuttonClicked) // 총알 발사 버튼이 눌렸을 때
         {
             playerCtrl.SetPlayerRotationCam(transform.forward);
             firebuttonClicked = false;
