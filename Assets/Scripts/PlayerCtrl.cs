@@ -12,6 +12,7 @@ public class PlayerCtrl : MonoBehaviour
     public FollowCam cam;
     public float moveSpeed = 10.0f; // 이동속도
     public float rotSpeed = 80.0f; // 회전속도
+    public float jumpPower = 5.0f; // 점프 파워
     Vector2 moveValue; // InputSystem에서 받아오는 값
     Vector3 moveDir; // 움직이는 방향
     Vector3 pDir; // 플레이어가 바라보는 방향
@@ -19,6 +20,9 @@ public class PlayerCtrl : MonoBehaviour
     private Vector3 cameraZ;
     float minInputValue;
     bool isFire;
+
+    bool isJump;
+    bool _isJump;
 
     public OnScreenStick leftStick;
 
@@ -28,6 +32,8 @@ public class PlayerCtrl : MonoBehaviour
         pis = new PlayerInput();
         pis.Ingame.Move.performed += SetMoveValue;
         pis.Ingame.Move.canceled += SetMoveValueZero;
+
+        isJump = _isJump = false;
     }
     void Start()
     {
@@ -49,6 +55,11 @@ public class PlayerCtrl : MonoBehaviour
         cameraZ.Set(cameraZ.x, 0.0f, cameraZ.z);
         cameraZ = cameraZ.normalized;
 
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            if (isJump == false)
+                isJump = _isJump = true;
+        }
 #if UNITY_EDITOR
         data = Vector2.zero;
 #elif UNITY_ANDROID
@@ -61,6 +72,7 @@ public class PlayerCtrl : MonoBehaviour
     {
         Turn();
         Move();
+        Jump();
     }
     private void OnEnable()
     {
@@ -133,6 +145,23 @@ public class PlayerCtrl : MonoBehaviour
         Debug.Log("pDir : " + pDir.normalized);
         Quaternion rot = Quaternion.LookRotation(pDir.normalized);
         rb.rotation = Quaternion.Slerp(rb.rotation, rot, rotSpeed * Time.deltaTime);
+    }
+    void Jump()
+    {
+        if (_isJump)
+        {
+            rb.AddForce(Vector3.up * jumpPower, ForceMode.Impulse);
+            _isJump = false;
+        }
+    }
+    private void OnCollisionEnter(Collision coll)
+    {
+        //if (isJump == true)
+        //  isJump = false;
+        if (coll.gameObject.tag == "Floor")
+        {
+            isJump = false;
+        }
     }
     void SetMoveValueZero(InputAction.CallbackContext ctx)
     {

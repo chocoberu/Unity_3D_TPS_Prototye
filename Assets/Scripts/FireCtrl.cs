@@ -37,6 +37,7 @@ public class FireCtrl : MonoBehaviour
         if(Input.GetMouseButtonUp(0)) // 버튼 땠을 때
         {
             playerCtrl.SetFinishedFire();
+            isFire = false;
         }
 
 #elif UNITY_ANDROID
@@ -58,8 +59,8 @@ public class FireCtrl : MonoBehaviour
         if (isFire && rotateComplete)
         {
             Fire();
-            isFire = false;
-            rotateComplete = false;
+            //isFire = false;
+            //rotateComplete = false;
         }
     }
     public void Fire()
