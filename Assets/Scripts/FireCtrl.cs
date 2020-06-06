@@ -65,7 +65,8 @@ public class FireCtrl : MonoBehaviour
     }
     public void Fire()
     {
-        Instantiate(bullet, firePos.position, firePos.rotation); // Bullet 프리팹을 동적 생성
+        if(isFire)
+            Instantiate(bullet, firePos.position, firePos.rotation); // Bullet 프리팹을 동적 생성
     }
     public void SetRotateComplete()
     {

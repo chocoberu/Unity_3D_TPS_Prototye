@@ -128,20 +128,23 @@ public class PlayerCtrl : MonoBehaviour
         }
         pDir = Vector3.zero;
         // 좌우 회전
-        if (!isFire)
+        if (!isFire) // 총알을 쏘지 않을 때 pDir
         {
             if (moveValue.x > minInputValue) // 오른쪽
                 pDir = cameraTr.right.normalized;
             if (moveValue.x < -minInputValue) // 왼쪽
                 pDir = -cameraTr.right.normalized;
+            if (moveValue.y > minInputValue)
+                pDir += cameraZ;
+            if (moveValue.y < -minInputValue)
+                pDir -= cameraZ;
         }
-        else
-            pDir = transform.forward;
+        else // 총알을 쏠때 pDir == 카메라 방향
+        {
+            pDir = cameraZ;
+        }
         // 상하 회전
-        if (moveValue.y > minInputValue)
-            pDir += cameraZ;
-        if (moveValue.y < -minInputValue)
-            pDir -= cameraZ;
+        
         Debug.Log("pDir : " + pDir.normalized);
         Quaternion rot = Quaternion.LookRotation(pDir.normalized);
         rb.rotation = Quaternion.Slerp(rb.rotation, rot, rotSpeed * Time.deltaTime);
