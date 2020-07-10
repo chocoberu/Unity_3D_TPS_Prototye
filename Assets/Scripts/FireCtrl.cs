@@ -16,6 +16,10 @@ public class FireCtrl : MonoBehaviour
     bool isReloading;
     bool isFire;
     bool rotateComplete;
+
+    float timeBetFire = 0.2f; // 총알 발사 간격
+    float lastFireTime;
+
     
     private void Start()
     {
@@ -24,6 +28,8 @@ public class FireCtrl : MonoBehaviour
         isFire = false;
         beforePressButton = false;
         rotateComplete = false;
+
+        lastFireTime = 0.0f;
     }
     //Update is called once per frame
     void Update()
@@ -56,8 +62,9 @@ public class FireCtrl : MonoBehaviour
             isFire = false;
         }
 #endif
-        if (isFire && rotateComplete)
+        if (isFire && rotateComplete && Time.time >= lastFireTime + timeBetFire)
         {
+            lastFireTime = Time.time;
             Fire();
             //isFire = false;
             //rotateComplete = false;
