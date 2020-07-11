@@ -14,7 +14,10 @@ public class FollowCam : MonoBehaviour
     public float distance = 5.0f; // 추적 대상과의 거리
     public float height = 4.0f; // 추적 대상과의 높이
     public float targetOffset = 2.0f; // 추적 좌표의 오프셋
-    public Vector3 initForward;
+
+    public Vector3 initForward; // 초기 forward 값
+
+    // 마우스 움직임 관련
     private float r = 0.0f;
     private float q = 0.0f;
     private float yAngle = 0.0f;
@@ -24,7 +27,7 @@ public class FollowCam : MonoBehaviour
     public float minXAngle = -5.0f;
     Vector3 xRotAxis;
     public OnScreenStick rightStick;
-    public GameObject firePosObj;
+    public GameObject firePosObj; // 총구 게임 오브젝트 (임시용)
     bool firebuttonClicked;
 
     void Start()
@@ -90,7 +93,7 @@ public class FollowCam : MonoBehaviour
         Gizmos.DrawWireSphere(target.position + (target.up * targetOffset), 0.1f); // 추적 및 시야를 맞출 위치를 표시
         Gizmos.DrawLine(target.position + (target.up * targetOffset), transform.position); // 메인 카메라와 추적 지점 간의 선을 표시
     }
-    public void SetFirebuttonClicked()
+    public void SetFireButtonClicked()
     {
         firebuttonClicked = true;
     }

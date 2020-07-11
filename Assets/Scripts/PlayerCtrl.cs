@@ -42,7 +42,7 @@ public class PlayerCtrl : MonoBehaviour
 
         pDir = transform.forward;
         minInputValue = 0.2f;
-        isFire = false;
+        //isFire = false;
     }
 
     // Update is called once per frame
@@ -101,8 +101,8 @@ public class PlayerCtrl : MonoBehaviour
 
             if (moveValue.x > minInputValue || moveValue.x < -minInputValue) // 좌우 이동
             {
-                // 임시로 좌우로 움직이게 설정, 원운동으로 수정 필요
-                if (!isFire)
+                // TODO : 임시로 좌우로 움직이게 설정, 원운동으로 수정 필요
+                if (!fireCtrl.IsFire)
                     moveDir += pDir;
                 else
                 {
@@ -128,7 +128,7 @@ public class PlayerCtrl : MonoBehaviour
         }
         pDir = Vector3.zero;
         // 좌우 회전
-        if (!isFire) // 총알을 쏘지 않을 때 pDir
+        if (!fireCtrl.IsFire) // 총알을 쏘지 않을 때 pDir
         {
             if (moveValue.x > minInputValue) // 오른쪽
                 pDir = cameraTr.right.normalized;
@@ -139,7 +139,7 @@ public class PlayerCtrl : MonoBehaviour
             if (moveValue.y < -minInputValue)
                 pDir -= cameraZ;
         }
-        else // 총알을 쏠때 pDir == 카메라 방향
+        else // 총알을 쏠 때, pDir == 카메라 방향
         {
             pDir = cameraZ;
         }
@@ -168,6 +168,7 @@ public class PlayerCtrl : MonoBehaviour
     }
     void SetMoveValueZero(InputAction.CallbackContext ctx)
     {
+        // Input 입력 값을 0으로 초기화
         moveValue = Vector3.zero;
     }
     public void SetPlayerRotationCam(Vector3 newPos)
@@ -178,11 +179,7 @@ public class PlayerCtrl : MonoBehaviour
     }
     public void SetReadyToFire()
     {
-        cam.SetFirebuttonClicked();
-        isFire = true;
+        cam.SetFireButtonClicked();
     }
-    public void SetFinishedFire()
-    {
-        isFire = false;
-    }
+    
 }

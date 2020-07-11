@@ -11,23 +11,24 @@ public class FireCtrl : MonoBehaviour
     public GameObject bullet; // 총알 프리팹
     public Transform firePos; // 총알 발사 좌표
     public OnScreenButton fireButton; // 총알 발사 버튼
-    PlayerCtrl playerCtrl;
-    bool beforePressButton;
-    bool isReloading;
-    bool isFire;
-    bool rotateComplete;
+    PlayerCtrl playerCtrl; // 플레이어 컨트롤러 컴포넌트
+    bool beforePressButton; // 이전에 버튼을 클릭했는지 체크
+    bool isReloading; // 현재 사용하지 않음
+    bool isFire; // 현재 총알 발사 중인지 체크
+    bool rotateComplete; // 플레이어의 회전이 완료 되었는지 체크
 
     float timeBetFire = 0.2f; // 총알 발사 간격
-    float lastFireTime;
+    float lastFireTime; // 마지막으로 총알을 발사한 시간을 체크
 
+    public bool IsFire { get { return isFire; } }
     
     private void Start()
     {
         playerCtrl = GetComponent<PlayerCtrl>();
         isReloading = false;
         isFire = false;
-        beforePressButton = false;
         rotateComplete = false;
+        beforePressButton = false;
 
         lastFireTime = 0.0f;
     }
@@ -38,12 +39,15 @@ public class FireCtrl : MonoBehaviour
         if (!isReloading && Input.GetMouseButtonDown(0))
         {
             isFire = true;
-            playerCtrl.SetReadyToFire(); // 이동 중에 쏠때는 어떻게 할지 수정 필요
+            // TODO : 이동 중에 쏠때는 어떻게 할지 수정 필요
+            // TODO : 코드 구조를 간결하게 수정 필요
+            playerCtrl.SetReadyToFire(); 
         }
-        if(Input.GetMouseButtonUp(0)) // 버튼 땠을 때
+        if(Input.GetMouseButtonUp(0)) // 버튼 땠을 때, 사격 중지 상태
         {
-            playerCtrl.SetFinishedFire();
+            //playerCtrl.SetFinishedFire();
             isFire = false;
+            rotateComplete = false;
         }
 
 #elif UNITY_ANDROID
@@ -60,20 +64,20 @@ public class FireCtrl : MonoBehaviour
         {
             beforePressButton = false;
             isFire = false;
+            rotateComplete = false;
         }
 #endif
         if (isFire && rotateComplete && Time.time >= lastFireTime + timeBetFire)
         {
             lastFireTime = Time.time;
             Fire();
-            //isFire = false;
-            //rotateComplete = false;
         }
     }
     public void Fire()
     {
+        // TODO : 오브젝트 풀링 적용 필요
         if(isFire)
-            Instantiate(bullet, firePos.position, firePos.rotation); // Bullet 프리팹을 동적 생성
+           Instantiate(bullet, firePos.position, firePos.rotation); // Bullet 프리팹을 동적 생성
     }
     public void SetRotateComplete()
     {
