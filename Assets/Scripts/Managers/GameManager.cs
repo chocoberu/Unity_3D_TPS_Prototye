@@ -7,7 +7,11 @@ public class GameManager : MonoBehaviour
     static GameManager s_instance = null;
     public static GameManager Instance { get { Init(); return s_instance; } }
     public GameObject mobileJoystick;
-    // Start is called before the first frame update
+
+    PoolManager _pool = new PoolManager();
+
+    public static PoolManager Pool { get { return Instance._pool; } }
+
     void Start()
     {
         Init();
@@ -33,5 +37,10 @@ public class GameManager : MonoBehaviour
             DontDestroyOnLoad(gObj);
             s_instance = gObj.GetComponent<GameManager>();
         }
+        s_instance._pool.Init();
+    }
+    public static void Clear()
+    {
+        Pool.Clear();
     }
 }

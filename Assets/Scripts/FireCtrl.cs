@@ -41,7 +41,7 @@ public class FireCtrl : MonoBehaviour
             isFire = true;
             // TODO : 이동 중에 쏠때는 어떻게 할지 수정 필요
             // TODO : 코드 구조를 간결하게 수정 필요
-            playerCtrl.SetReadyToFire(); 
+            //playerCtrl.SetReadyToFire(); 
         }
         if(Input.GetMouseButtonUp(0)) // 버튼 땠을 때, 사격 중지 상태
         {
@@ -58,7 +58,6 @@ public class FireCtrl : MonoBehaviour
         {
             beforePressButton = true;
             isFire = true;
-            playerCtrl.SetReadyToFire();
         }
         if (data < 0.1f)
         {
@@ -76,8 +75,19 @@ public class FireCtrl : MonoBehaviour
     public void Fire()
     {
         // TODO : 오브젝트 풀링 적용 필요
-        if(isFire)
-           Instantiate(bullet, firePos.position, firePos.rotation); // Bullet 프리팹을 동적 생성
+        if (isFire)
+        {
+            //Instantiate(bullet, firePos.position, firePos.rotation); // Bullet 프리팹을 동적 생성
+            if(GameManager.Pool.GetOriginal(bullet.name) == null)
+            {
+                GameManager.Pool.CreatePool(bullet, 20);
+            }
+            Poolable poolable = GameManager.Pool.Pop(bullet);
+            GameObject go = poolable.gameObject;
+            go.transform.position = firePos.position;
+            go.transform.rotation = firePos.rotation;
+            go.GetComponent<BulletCtrl>().ShotBullet();
+        }
     }
     public void SetRotateComplete()
     {

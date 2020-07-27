@@ -7,8 +7,10 @@ using UnityEngine.InputSystem.OnScreen;
 
 public class FollowCam : MonoBehaviour
 {
-    public Transform target; // 추적할 대상
+    public Transform target; // 추적할 대상 (플레이어)
+    // 컴포넌트 관련
     public PlayerCtrl playerCtrl;
+    public FireCtrl fireCtrl;
     public float moveDamping = 20.0f; // 이동 속도 계수
     public float rotateDamping = 10.0f; // 회전 속도 계수
     public float distance = 5.0f; // 추적 대상과의 거리
@@ -17,41 +19,39 @@ public class FollowCam : MonoBehaviour
 
     public Vector3 initForward; // 초기 forward 값
 
-    // 마우스 움직임 관련
-    private float r = 0.0f;
-    private float q = 0.0f;
+    // 각도 관련
     private float yAngle = 0.0f;
     private float xAngle = 0.0f;
     float beforeXAngle = 0.0f;
     public float maxXAngle = 25.0f;
     public float minXAngle = -5.0f;
     Vector3 xRotAxis;
-    public OnScreenStick rightStick;
     public GameObject firePosObj; // 총구 게임 오브젝트 (임시용)
-    bool firebuttonClicked;
+    //bool firebuttonClicked;
 
     void Start()
     {
         //tr = GetComponent<Transform>(); // CameraRig의 Transform 컴포넌트를 추출
         initForward = target.forward;
-        firebuttonClicked = false;
+        //firebuttonClicked = false;
     }
     void Update()
     {
-#if UNITY_EDITOR
-        r = Input.GetAxisRaw("Mouse X");
-        q = Input.GetAxisRaw("Mouse Y");
-#elif UNITY_ANDROID
-        Vector2 data = (Vector2)rightStick.control.ReadValueAsObject();
-        r = data.x;
-        q = data.y;
-#endif
+        
+//#if UNITY_EDITOR
+//        r = Input.GetAxisRaw("Mouse X");
+//        q = Input.GetAxisRaw("Mouse Y");
+//#elif UNITY_ANDROID
+//        Vector2 data = (Vector2)rightStick.control.ReadValueAsObject();
+//        r = data.x;
+//        q = data.y;
+//#endif
 
         //Debug.Log("r = " + r + " q = " + q);
         beforeXAngle = xAngle;
-        yAngle += r * 0.1f;
+        yAngle += playerCtrl.R * 0.1f;
         yAngle = yAngle % (2 * Mathf.PI);
-        xAngle += q * 1.2f;
+        xAngle += playerCtrl.Q * 1.2f;
         if (xAngle > maxXAngle)
             xAngle = maxXAngle;
         if (xAngle < minXAngle)
@@ -80,10 +80,10 @@ public class FollowCam : MonoBehaviour
             firePosObj.transform.Rotate(beforeXAngle- xAngle, 0.0f, 0.0f); // 총구 부분 회전
         }
         
-        if(firebuttonClicked) // 총알 발사 버튼이 눌렸을 때
+        if(fireCtrl.IsFire) // 총알 발사 버튼이 눌렸을 때
         {
             playerCtrl.SetPlayerRotationCam(transform.forward);
-            firebuttonClicked = false;
+            //firebuttonClicked = false;
         }
     }
 
@@ -93,8 +93,8 @@ public class FollowCam : MonoBehaviour
         Gizmos.DrawWireSphere(target.position + (target.up * targetOffset), 0.1f); // 추적 및 시야를 맞출 위치를 표시
         Gizmos.DrawLine(target.position + (target.up * targetOffset), transform.position); // 메인 카메라와 추적 지점 간의 선을 표시
     }
-    public void SetFireButtonClicked()
-    {
-        firebuttonClicked = true;
-    }
+    //public void SetFireButtonClicked()
+    //{
+    //    firebuttonClicked = true;
+    //}
 }

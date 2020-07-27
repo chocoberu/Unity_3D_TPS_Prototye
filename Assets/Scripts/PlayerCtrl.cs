@@ -6,13 +6,22 @@ using UnityEngine.InputSystem.OnScreen;
 
 public class PlayerCtrl : MonoBehaviour
 {
+    // 컴포넌트 관련
     private Rigidbody rb;
     private FireCtrl fireCtrl;
     public PlayerInput pis;
     public FollowCam cam;
+
     public float moveSpeed = 10.0f; // 이동속도
     public float rotSpeed = 80.0f; // 회전속도
     public float jumpPower = 5.0f; // 점프 파워
+
+    float r = 0.0f;
+    float q = 0.0f;
+
+    public float R { get { return r; } }
+    public float Q { get { return q; } }
+        
     Vector2 moveValue; // InputSystem에서 받아오는 값
     Vector3 moveDir; // 움직이는 방향
     Vector3 pDir; // 플레이어가 바라보는 방향
@@ -25,6 +34,7 @@ public class PlayerCtrl : MonoBehaviour
     bool _isJump;
 
     public OnScreenStick leftStick;
+    public OnScreenStick rightStick;
 
     // Start is called before the first frame update
     private void Awake()
@@ -50,21 +60,27 @@ public class PlayerCtrl : MonoBehaviour
     {
         //Debug.Log("h : " + moveValue.x + " v : " + moveValue.y);
         //Debug.Log("pDir : " + pDir.normalized);
-        Vector2 data;
+        Vector2 ldata, rdata;
         cameraZ = cameraTr.forward;
         cameraZ.Set(cameraZ.x, 0.0f, cameraZ.z);
         cameraZ = cameraZ.normalized;
 
+        // TODO : 모바일에서 점프 추가 (현재 모바일에선 불가)
         if (Input.GetKeyDown(KeyCode.Space))
         {
             if (isJump == false)
                 isJump = _isJump = true;
         }
 #if UNITY_EDITOR
-        data = Vector2.zero;
+        ldata = rdata = Vector2.zero;
+        r = Input.GetAxisRaw("Mouse X");
+        q = Input.GetAxisRaw("Mouse Y");
 #elif UNITY_ANDROID
-        data = (Vector2)leftStick.control.ReadValueAsObject();
-        moveValue = data;
+        ldata = (Vector2)leftStick.control.ReadValueAsObject();
+        moveValue = ldata;
+        rdata = (Vector2)rightStick.control.ReadValueAsObject();
+        r = rdata.x;
+        q = rdata.y;
 #endif
 
     }
@@ -122,12 +138,12 @@ public class PlayerCtrl : MonoBehaviour
     }
     void Turn()
     {
-        if (moveValue.sqrMagnitude < minInputValue)
-        {
-            return;
-        }
-        pDir = Vector3.zero;
-        // 좌우 회전
+        //if (moveValue.sqrMagnitude < minInputValue)
+        //{
+        //    return;
+        //}
+        //pDir = Vector3.zero;
+        
         if (!fireCtrl.IsFire) // 총알을 쏘지 않을 때 pDir
         {
             if (moveValue.x > minInputValue) // 오른쪽
@@ -145,7 +161,7 @@ public class PlayerCtrl : MonoBehaviour
         }
         // 상하 회전
         
-        Debug.Log("pDir : " + pDir.normalized);
+        //Debug.Log("pDir : " + pDir.normalized);
         Quaternion rot = Quaternion.LookRotation(pDir.normalized);
         rb.rotation = Quaternion.Slerp(rb.rotation, rot, rotSpeed * Time.deltaTime);
     }
@@ -177,9 +193,9 @@ public class PlayerCtrl : MonoBehaviour
         transform.forward = newPos;
         fireCtrl.SetRotateComplete();
     }
-    public void SetReadyToFire()
-    {
-        cam.SetFireButtonClicked();
-    }
+    //public void SetReadyToFire()
+    //{
+    //    cam.SetFireButtonClicked();
+    //}
     
 }
