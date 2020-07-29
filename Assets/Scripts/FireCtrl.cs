@@ -82,7 +82,7 @@ public class FireCtrl : MonoBehaviour
             {
                 GameManager.Pool.CreatePool(bullet, 20);
             }
-            Poolable poolable = GameManager.Pool.Pop(bullet);
+            Poolable poolable = GameManager.Pool.Pop(bullet, this.transform.parent);
             GameObject go = poolable.gameObject;
             go.transform.position = firePos.position;
             go.transform.rotation = firePos.rotation;

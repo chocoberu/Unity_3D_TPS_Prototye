@@ -24,7 +24,7 @@ public class PlayerCtrl : MonoBehaviour
         
     Vector2 moveValue; // InputSystem에서 받아오는 값
     Vector3 moveDir; // 움직이는 방향
-    Vector3 pDir; // 플레이어가 바라보는 방향
+    Vector3 pDir; // 플레이어가 바라보는 방향 벡터
     public Transform cameraTr;
     private Vector3 cameraZ;
     float minInputValue;
@@ -138,28 +138,45 @@ public class PlayerCtrl : MonoBehaviour
     }
     void Turn()
     {
-        //if (moveValue.sqrMagnitude < minInputValue)
-        //{
-        //    return;
-        //}
-        //pDir = Vector3.zero;
+        Vector3 prevDir = pDir; // 이전 방향 값을 저장
+        bool modified = false; // 방향 값이 바꼈는지 확인
+        pDir = Vector3.zero;
         
-        if (!fireCtrl.IsFire) // 총알을 쏘지 않을 때 pDir
+        if (!fireCtrl.IsFire) // 총알을 쏘지 않을 때 플레이어 방향
         {
             if (moveValue.x > minInputValue) // 오른쪽
+            {
                 pDir = cameraTr.right.normalized;
+                modified = true;
+            }
             if (moveValue.x < -minInputValue) // 왼쪽
+            {
                 pDir = -cameraTr.right.normalized;
+                modified = true;
+            }
             if (moveValue.y > minInputValue)
+            {
                 pDir += cameraZ;
+                modified = true;
+            }
             if (moveValue.y < -minInputValue)
+            {
                 pDir -= cameraZ;
+                modified = true;
+            }
         }
         else // 총알을 쏠 때, pDir == 카메라 방향
         {
             pDir = cameraZ;
+            modified = true;
         }
-        // 상하 회전
+
+        // pDir이 그대로라면
+        if (modified == false)
+        {
+            pDir = prevDir;
+            return;
+        }
         
         //Debug.Log("pDir : " + pDir.normalized);
         Quaternion rot = Quaternion.LookRotation(pDir.normalized);

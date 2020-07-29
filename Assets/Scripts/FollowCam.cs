@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.OnScreen;
-
+using UnityEngine.UI;
 
 public class FollowCam : MonoBehaviour
 {
@@ -28,6 +28,10 @@ public class FollowCam : MonoBehaviour
     Vector3 xRotAxis;
     public GameObject firePosObj; // 총구 게임 오브젝트 (임시용)
     //bool firebuttonClicked;
+
+    public Image uiTest;
+
+    Vector3 uiPosition;
 
     void Start()
     {
@@ -77,7 +81,13 @@ public class FollowCam : MonoBehaviour
 
         if (firePosObj != null)
         {
-            firePosObj.transform.Rotate(beforeXAngle- xAngle, 0.0f, 0.0f); // 총구 부분 회전
+            firePosObj.transform.Rotate((beforeXAngle- xAngle) * 0.5f, 0.0f, 0.0f); // 총구 부분 회전
+
+            // 조준선 UI 업데이트
+            // TODO : 카메라 방향과 플레이어의 정면 방향이 다를 때 처리 필요
+            uiPosition = Camera.main.WorldToScreenPoint(firePosObj.transform.position + firePosObj.transform.forward);
+            uiTest.transform.localPosition = new Vector3(0.0f, Screen.height * 0.5f - uiPosition.y, 0.0f);
+            
         }
         
         if(fireCtrl.IsFire) // 총알 발사 버튼이 눌렸을 때
@@ -85,6 +95,7 @@ public class FollowCam : MonoBehaviour
             playerCtrl.SetPlayerRotationCam(transform.forward);
             //firebuttonClicked = false;
         }
+        
     }
 
     void OnDrawGizmos() // 추적할 좌표를 시각적으로 표현
@@ -96,5 +107,10 @@ public class FollowCam : MonoBehaviour
     //public void SetFireButtonClicked()
     //{
     //    firebuttonClicked = true;
+    //}
+
+    //private void OnGUI()
+    //{
+    //    GUI.Box(new Rect(Screen.width * 0.5f, uiPosition.y - 10.0f, 20.0f, 20.0f), "Test");
     //}
 }
