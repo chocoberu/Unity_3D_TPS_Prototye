@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿//출처: https://ssscool.tistory.com/317 [시작] 코드를 사용
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -42,5 +43,5 @@ public class TestFPSUI : MonoBehaviour
         text = msec.ToString("F1") + "ms (" + fps.ToString("F1") + ") // worst : " + worstFps.ToString("F1");
         GUI.Label(rect, text, style);
     }
-    //출처: https://ssscool.tistory.com/317 [시작]
+    
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿// 절대강좌 유니티 교재의 FollowCam을 수정해서 사용
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -32,6 +33,8 @@ public class FollowCam : MonoBehaviour
     public Image uiTest;
 
     Vector3 uiPosition;
+    Vector3 camDir;
+    Vector3 fireDir;
 
     void Start()
     {
@@ -84,8 +87,20 @@ public class FollowCam : MonoBehaviour
             firePosObj.transform.Rotate((beforeXAngle- xAngle) * 0.5f, 0.0f, 0.0f); // 총구 부분 회전
 
             // 조준선 UI 업데이트
-            // TODO : 카메라 방향과 플레이어의 정면 방향이 다를 때 처리 필요
-            uiPosition = Camera.main.WorldToScreenPoint(firePosObj.transform.position + firePosObj.transform.forward);
+            // TODO : 카메라 방향과 플레이어의 정면 방향이 다를 때 처리 필요 (아직 완성 X)
+            
+            //camDir = transform.forward;
+            //camDir.y = 0.0f;
+            //fireDir = firePosObj.transform.forward;
+            //fireDir.y = 0.0f;
+
+            //float angle = Vector3.Angle(camDir, fireDir);
+            //Quaternion rot = Quaternion.Eu;
+            Vector3 normal = Vector3.Cross(transform.forward, transform.up);
+            fireDir = Vector3.ProjectOnPlane(firePosObj.transform.forward, normal).normalized;
+            uiPosition = Camera.main.WorldToScreenPoint(firePosObj.transform.position + fireDir);
+
+            Debug.Log(Vector3.Angle(target.transform.forward, firePosObj.transform.forward));
             uiTest.transform.localPosition = new Vector3(0.0f, Screen.height * 0.5f - uiPosition.y, 0.0f);
             
         }
@@ -103,6 +118,8 @@ public class FollowCam : MonoBehaviour
         Gizmos.color = Color.green;
         Gizmos.DrawWireSphere(target.position + (target.up * targetOffset), 0.1f); // 추적 및 시야를 맞출 위치를 표시
         Gizmos.DrawLine(target.position + (target.up * targetOffset), transform.position); // 메인 카메라와 추적 지점 간의 선을 표시
+
+        Gizmos.DrawLine(firePosObj.transform.position, firePosObj.transform.position + fireDir * 10.0f);
     }
     //public void SetFireButtonClicked()
     //{

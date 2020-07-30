@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿// 인프런 유니티 강좌 코드를 수정해서 사용
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
