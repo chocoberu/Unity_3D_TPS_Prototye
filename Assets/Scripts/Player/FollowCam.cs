@@ -26,11 +26,10 @@ public class FollowCam : MonoBehaviour
     float beforeXAngle = 0.0f;
     public float maxXAngle = 25.0f;
     public float minXAngle = -5.0f;
-    Vector3 xRotAxis;
+    Vector3 xRotAxis; // x축 벡터
     public GameObject firePosObj; // 총구 게임 오브젝트 (임시용)
-    //bool firebuttonClicked;
 
-    public Image uiTest;
+    public Image uiTest; // 조준선 UI 이미지
 
     Vector3 uiPosition; // 조준선 스크린 좌표을 구하기 위해 필요한 변수
     Vector3 camDir; // 카메라가 가리키는 방향을 projection 한 후 나타내는 변수 
@@ -46,17 +45,7 @@ public class FollowCam : MonoBehaviour
     }
     void Update()
     {
-        
-//#if UNITY_EDITOR
-//        r = Input.GetAxisRaw("Mouse X");
-//        q = Input.GetAxisRaw("Mouse Y");
-//#elif UNITY_ANDROID
-//        Vector2 data = (Vector2)rightStick.control.ReadValueAsObject();
-//        r = data.x;
-//        q = data.y;
-//#endif
-
-        //Debug.Log("r = " + r + " q = " + q);
+        // 회전 각도를 구하는 과정
         beforeXAngle = xAngle;
         yAngle += playerCtrl.R * 0.1f;
         yAngle = yAngle % (2 * Mathf.PI);
@@ -65,7 +54,7 @@ public class FollowCam : MonoBehaviour
             xAngle = maxXAngle;
         if (xAngle < minXAngle)
             xAngle = minXAngle;
-        //Debug.Log("yAngle : " + yAngle + " xAngle : " + xAngle);
+        
     }
 
     void LateUpdate()
@@ -73,29 +62,26 @@ public class FollowCam : MonoBehaviour
         //var camPos = target.position - (target.forward * distance) + (target.up * height); // 카메라의 높이와 거리를 계산
         var camPos = target.position - (initForward * distance) + (target.up * height); // 카메라의 높이와 거리를 계산
 
-        //transform.position = Vector3.Slerp(transform.position, camPos, Time.deltaTime * moveDamping); // 이동할 때의 속도 계수를 적용
+        //transform.position = Vector3.Slerp(transform.position, camPos, Time.deltaTime * moveDamping); // 이동할 때의 속도 계수를 적용 (기존 FollowCam)
         transform.position = camPos;
-        transform.RotateAround(target.position, target.up, yAngle); // 플레이어의 y축을 기준으로 카메라를 공전
+        transform.RotateAround(target.position, target.up, yAngle); // 플레이어의 y축을 기준으로 카메라를 공전 (좌우 이동)
 
         initForward.x = Mathf.Sin(yAngle);
         initForward.z = Mathf.Cos(yAngle);
 
         transform.LookAt(target.position + (target.up * targetOffset)); // 카메라의 Z축을 타겟의 위치로 설정
         xRotAxis.Set(transform.right.x, 0.0f, transform.right.z);
-        transform.RotateAround(target.position + (target.up * targetOffset), xRotAxis, -xAngle); // 타켓 위치를 기준점으로 카메라의 x축 공전
+        transform.RotateAround(target.position + (target.up * targetOffset), xRotAxis, -xAngle); // 타켓 위치를 기준점으로 카메라의 x축 공전 (상하 이동)
 
         if (firePosObj != null)
         {
             firePosObj.transform.Rotate((beforeXAngle- xAngle) * 0.5f, 0.0f, 0.0f); // 총구 부분 회전
 
             // 조준선 UI 업데이트
-            // TODO : 카메라 방향과 플레이어의 정면 방향이 다를 때 처리 필요 (아직 완성 X)
-            
             Vector3 normal = Vector3.Cross(transform.forward, transform.up);
             camDir = -Vector3.Cross(normal, target.transform.up);
             float angle = Vector3.Angle(camDir, firePosObj.transform.forward);
-            //Quaternion rot = Quaternion.AngleAxis(Vector3.Angle(normal, firePosObj.transform.forward), target.transform.up);
-            Debug.Log(angle);
+            //Debug.Log(angle);
 
             Quaternion rot1;
             Quaternion rot2;
@@ -118,41 +104,35 @@ public class FollowCam : MonoBehaviour
             //fireDir = Vector3.ProjectOnPlane(firePosObj.transform.forward, normal).normalized;
             
             uiPosition = Camera.main.WorldToScreenPoint(firePosObj.transform.position + fireDir);
-            
             //Debug.Log(target.transform.position + " " + firePosObj.transform.position);
             //Debug.Log(Vector3.Angle(target.transform.forward, firePosObj.transform.forward));
-            uiTest.transform.localPosition = new Vector3(0.0f, Screen.height * 0.5f - uiPosition.y, 0.0f);
             
+            // TODO : 조준선 오차 수정 
+            float uiYPos = Mathf.Clamp(Screen.height * 0.5f - uiPosition.y, 120.0f, 140.0f);
+            
+            //uiTest.transform.localPosition = new Vector3(0.0f, Screen.height * 0.5f - uiPosition.y, 0.0f);
+            uiTest.transform.localPosition = new Vector3(0.0f, uiYPos, 0.0f);
+
         }
         
         if(fireCtrl.IsFire) // 총알 발사 버튼이 눌렸을 때
         {
             playerCtrl.SetPlayerRotationCam(transform.forward);
-            //firebuttonClicked = false;
         }
         
     }
 
-    void OnDrawGizmos() // 추적할 좌표를 시각적으로 표현
+    void OnDrawGizmos() // 추적할 좌표를 시각적으로 표현 (유니티 에디터)
     {
         Gizmos.color = Color.green;
         Gizmos.DrawWireSphere(target.position + (target.up * targetOffset), 0.1f); // 추적 및 시야를 맞출 위치를 표시
         Gizmos.DrawLine(target.position + (target.up * targetOffset), transform.position); // 메인 카메라와 추적 지점 간의 선을 표시
 
-        Gizmos.color = Color.blue;
+        Gizmos.color = Color.blue; // 조준선
         Gizmos.DrawLine(firePosObj.transform.position, firePosObj.transform.position + fireDir * 10.0f);
-        Gizmos.color = Color.red;
+        Gizmos.color = Color.red; // 노말 벡터
         Gizmos.DrawLine(target.transform.position, target.transform.position + Vector3.Cross(transform.forward, transform.up) * 10.0f);
-        Gizmos.color = Color.yellow;
+        Gizmos.color = Color.yellow; // 실제 발사 벡터
         Gizmos.DrawLine(firePosObj.transform.position, firePosObj.transform.position + firePosObj.transform.forward * 10.0f);
     }
-    //public void SetFireButtonClicked()
-    //{
-    //    firebuttonClicked = true;
-    //}
-
-    //private void OnGUI()
-    //{
-    //    GUI.Box(new Rect(Screen.width * 0.5f, uiPosition.y - 10.0f, 20.0f, 20.0f), "Test");
-    //}
 }

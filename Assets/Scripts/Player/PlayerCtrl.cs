@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.OnScreen;
 
-public class PlayerCtrl : MonoBehaviour
+public class PlayerCtrl : LivingEntity
 {
     // 컴포넌트 관련
     private Rigidbody rb;
@@ -16,6 +16,7 @@ public class PlayerCtrl : MonoBehaviour
     public float rotSpeed = 80.0f; // 회전속도
     public float jumpPower = 5.0f; // 점프 파워
 
+    // 마우스/오른쪽 아날로그 값 관련 변수
     float r = 0.0f;
     float q = 0.0f;
 
@@ -25,14 +26,15 @@ public class PlayerCtrl : MonoBehaviour
     Vector2 moveValue; // InputSystem에서 받아오는 값
     Vector3 moveDir; // 움직이는 방향
     Vector3 pDir; // 플레이어가 바라보는 방향 벡터
-    public Transform cameraTr;
-    private Vector3 cameraZ;
+    public Transform cameraTr; // 카메라 위치
+    private Vector3 cameraZ; // 카메라 forward의 사영 벡터
     float minInputValue;
-    bool isFire;
 
+    // 점프 관련 변수
     bool isJump;
     bool _isJump;
 
+    // 가상 조이스틱 관련
     public OnScreenStick leftStick;
     public OnScreenStick rightStick;
 
@@ -52,7 +54,8 @@ public class PlayerCtrl : MonoBehaviour
 
         pDir = transform.forward;
         minInputValue = 0.2f;
-        //isFire = false;
+        maxHealth = 100.0f;
+        Health = maxHealth;
     }
 
     // Update is called once per frame
@@ -214,5 +217,10 @@ public class PlayerCtrl : MonoBehaviour
     //{
     //    cam.SetFireButtonClicked();
     //}
-    
+    public override void Die()
+    {
+        base.Die();
+
+        GameObject.Destroy(this.gameObject, 5.0f);
+    }
 }

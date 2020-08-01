@@ -74,18 +74,19 @@ public class FireCtrl : MonoBehaviour
     }
     public void Fire()
     {
-        // TODO : 오브젝트 풀링 적용 필요
         if (isFire)
         {
             //Instantiate(bullet, firePos.position, firePos.rotation); // Bullet 프리팹을 동적 생성
+            // 오브젝트 풀링을 이용해서 생성
             if(GameManager.Pool.GetOriginal(bullet.name) == null)
             {
                 GameManager.Pool.CreatePool(bullet, 20);
             }
             Poolable poolable = GameManager.Pool.Pop(bullet, this.transform.parent);
             GameObject go = poolable.gameObject;
-            go.transform.position = firePos.position;
+            go.transform.position = firePos.position + firePos.forward * 0.5f;
             go.transform.rotation = firePos.rotation;
+            go.GetComponent<BulletCtrl>().Owner = playerCtrl;
             go.GetComponent<BulletCtrl>().ShotBullet();
         }
     }
